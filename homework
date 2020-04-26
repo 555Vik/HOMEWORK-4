@@ -176,7 +176,7 @@ covid19
 
 ```{r}
 virus_df <- covid19 %>% 
-filter (country=="Italy") 
+ filter (country=="Italy") 
 
 virus_df 
 
@@ -185,9 +185,12 @@ virus_df
 
 
 ```{r}
-df <-virus_df
-
-join_by = c("date")
+df <-virus_df %>%
+  
+ filter(country=="Italy") %>%
+ full_join(wider_df,by=c("date")) 
+ 
+df
 
 
 ```
@@ -196,7 +199,7 @@ join_by = c("date")
 Відфільтруйте з даних `covid19` ті, що стосуються вашої країни з даних авіасполучення. Далі з'єднайте їх з даними авіасполучення за ключем датою
 
 ```{r}
-# wider_df c read.csv("checkpoints/df-6-wider.csv") %>%
+# wider_df <- read.csv("checkpoints/df-6-wider.csv") %>%
 #   mutate(date = as.Date(date))
 
 
