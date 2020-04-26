@@ -1,3 +1,7 @@
+---
+title: "Template for hw4"
+output: html_notebook
+---
 
 
 ```{r}
@@ -50,7 +54,7 @@ air <- air %>%
 
 air <- air %>%
   mutate(date = as.Date(date)) %>%
-  select("date","italy_non.italy") 
+  select(date,italy_non.italy) 
 air
   
   # ваш код
@@ -66,7 +70,7 @@ air <- air %>%
               
   mutate(date = as.Date(date))  %>%
   select("date","italy_non.italy") %>%
-  arrange(desc(date))
+  arrange((date))
   # приберемо зайві колонки
  
 air
@@ -95,8 +99,8 @@ air[,c("date","year","month", "day")]
 ```{r}
 # df <- read.csv("checkpoints/df-4.csv")
 air <- air %>%
- group_by(day, month) %>%
- filter(2019,2020) %>% 
+ group_by(day,month) %>%
+filter(day,month==2) %>%
  ungroup(df) 
 air
   
@@ -109,8 +113,8 @@ air
 Для цього зробимо окремі колонки для даних 2019 та 2020 (цей шматок у вас виконаний, бо `pivot_wider` то складно). Підставте в цей код назву колонки зі значеннями кількості польотів (тут на прикладі Ірану) у аргумент `values_from`:
 ```{r}
 # df <- read.csv("checkpoints/df-5.csv")
-wider_df <- df %>% 
-  pivot_wider(id_cols = c("day", "month"),
+wider_df <- air %>% 
+pivot_wider(id_cols = c("day", "month"),
               names_from = "year",
               values_from = "italy_non.italy",
               names_prefix = "y")
@@ -119,11 +123,19 @@ wider_df
 
 Порахуйте, як змінились польоти у 2020 в порівнянні з тим же днем 2019-го (`y2020 / y2019`).
 Також у цій же функції `mutate`поверніть дату за допомогою функції `str_c`, з'єднавши "2020" (рік), місяци та день через роздільник "-".
+
+`
+
 ```{r}
 # wider_df <- read.csv("checkpoints/df-5-wider.csv")
-?str_c
-wider_df <- wider_df %>%
-mutate(day_since_2019-2020) 
+
+wider_df <- wider_df %>% 
+ mutate(year = y2019/y2020)  
+ 
+
+wider_df
+
+
 
   # ваш код
 ```
@@ -161,11 +173,33 @@ covid19 <- prepare_covid("https://bit.ly/3aLLfKw", "cases") %>%
 covid19
 ```
 
+
+```{r}
+virus_df <- covid19 %>% 
+filter (country=="Italy") 
+
+virus_df 
+
+
+```
+
+
+```{r}
+df <-virus_df
+
+join_by = c("date")
+
+
+```
+
+
 Відфільтруйте з даних `covid19` ті, що стосуються вашої країни з даних авіасполучення. Далі з'єднайте їх з даними авіасполучення за ключем датою
 
 ```{r}
-# wider_df <- read.csv("checkpoints/df-6-wider.csv") %>%
+# wider_df c read.csv("checkpoints/df-6-wider.csv") %>%
 #   mutate(date = as.Date(date))
+
+
 ```
 
 ### 8. Збережіть отримані з'єднані дані в csv.
