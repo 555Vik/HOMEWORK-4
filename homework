@@ -1,37 +1,22 @@
----
-title: "Template for hw4"
-output: html_notebook
----
-
-
 ```{r}
 library(tidyverse)
 library(lubridate)
 library(rvest)
 
 ```
-
 ## Підготовка
-Дані "за замовчуванням"
-1) дані авіаційного трафіку за країнами, подивіться `?html_table`
+
 ```{r}
 air <- read_html("https://www.radarbox.com/statistics/total") %>%
   html_node("table#datatable") %>%
   html_table() %>%
 rename(date = Day)
-# Трохи приведемо до лау назви колонок, для зручності
+
 colnames(air) <- colnames(air) %>%
   str_replace("  ", "_") %>%
   str_replace(" ", ".") %>%
   str_to_lower()
 ```
-
-## Завдання
-
-### 1. Переконайтесь, що колонка "day", так у даних назвали дату, читається як дата. Спробуйте дістати з цієї дати номер тижня за допомогою функції `week()`.
-
-Якщо не читається дата, перетворіть на дату. Функції `as.Date`, або `ymd`, або `mdy`, або `dmy` стануть у нагоді. https://lubridate.tidyverse.org/reference/index.html
-
 
 ```{r}
 air 
@@ -44,12 +29,7 @@ air <- air %>%
   air
   
 ```
-
 ### 2. Виберіть лише потрібні колонки
-Виберіть країну, трафік з якої будете порівнювати (лише країна, а не регіон, і зовнішнє сполучення: на вибір одна з `us_non.us`, `canada_non.canada`, `uk_non.uk`, `india_non.india`, `italy_non.italy`, `china_non.china`, `brazil_non.brazil`, `iran_non.iran`).
-
-Лишіть лише колонку кількості рейсів з/до вибраної країни та дати.
-
 ```{r}
 
 air <- air %>%
@@ -57,62 +37,37 @@ air <- air %>%
   select(date,italy_non.italy) 
 air
   
-  # ваш код
 ```
-
 ### 3. Сортування
-Відсортуйте дані за датою, від найменшої до найбільшої
 
 ```{r}
-# df <- read.csv("checkpoints/df-2.csv")
-
 air <- air %>%
               
   mutate(date = as.Date(date))  %>%
   select("date","italy_non.italy") %>%
   arrange((date))
-  # приберемо зайві колонки
- 
 air
 ```
-
 ### 4. Розрахунок нових змінних
 Додайте нові колонки "year", "month", "day" до таблиці, в якій буде рік (`year()`), місяць, день з дати.
 ```{r}
-# df <- read.csv("checkpoints/df-3.csv")
-
   air$year = as.numeric(format(air$date,'%Y')) 
   air$month = as.numeric(format(air$date,'%m'))
   air$day = as.numeric(format(air$date,'%d'))
 air[,c("date","year","month", "day")]
 
 ```
-
-
 ### 5. Фільтрування з групуванням
-Далі спробуємо дізнатись, як змінився авіаційний трафік в порівнянні з попереднім роком. Для цього можемо відфільтрувати рядки за 2019 рік, для яких ще немає порівняння у 2020-му, наприклад, грудень чи листопад 2019.
-
-1) Згрупуйте ваш дані за місяцем і днем місяця за колонками `day`, `month`.
-2) Відфільтруйте рядки, де в групі два значення (за 2019 та 2020). Кількість значень рахує функція `n()`
-3) Розгрупуйте датафрейм (`ungroup()`)
 
 ```{r}
-# df <- read.csv("checkpoints/df-4.csv")
 air <- air %>%
  group_by(day,month) %>%
-filter(day,month==2) %>%
- ungroup(df) 
+ filter(n() == 2)
 air
   
 ```
-
-
 ### 6. Перетворення
-Порахуйте, наскільки знизився авіатрафік у порівянні з попереднім роком.
-
-Для цього зробимо окремі колонки для даних 2019 та 2020 (цей шматок у вас виконаний, бо `pivot_wider` то складно). Підставте в цей код назву колонки зі значеннями кількості польотів (тут на прикладі Ірану) у аргумент `values_from`:
 ```{r}
-# df <- read.csv("checkpoints/df-5.csv")
 wider_df <- air %>% 
 pivot_wider(id_cols = c("day", "month"),
               names_from = "year",
@@ -120,31 +75,18 @@ pivot_wider(id_cols = c("day", "month"),
               names_prefix = "y")
 wider_df
 ```
-
-Порахуйте, як змінились польоти у 2020 в порівнянні з тим же днем 2019-го (`y2020 / y2019`).
-Також у цій же функції `mutate`поверніть дату за допомогою функції `str_c`, з'єднавши "2020" (рік), місяци та день через роздільник "-".
-
-`
-
 ```{r}
-# wider_df <- read.csv("checkpoints/df-5-wider.csv")
 
 wider_df <- wider_df %>% 
- mutate(year = y2019/y2020)  
- 
-
+mutate(flights = y2019/y2020,
+       date = str_c("2020",month, day, sep="-"),
+       date = ymd(date)
+       )
 wider_df
 
-
-
-  # ваш код
 ```
-
-
-
 ### 7. З'єднання
 
-Спершу завантажимо другу таблицю (просто запустіть код). Це дані по коронавірусу з минулої лекції.
 Дані: https://data.humdata.org/dataset/novel-coronavirus-2019-ncov-cases (лінки скорочені для зручності)
 ```{r}
 prepare_covid <- function(url, col_name) {
@@ -172,18 +114,13 @@ covid19 <- prepare_covid("https://bit.ly/3aLLfKw", "cases") %>%
          date = as.Date(date))
 covid19
 ```
-
-
 ```{r}
 virus_df <- covid19 %>% 
  filter (country=="Italy") 
 
 virus_df 
 
-
 ```
-
-
 ```{r}
 df <-virus_df %>%
   
@@ -192,26 +129,18 @@ df <-virus_df %>%
  
 df
 
-
 ```
-
-
-Відфільтруйте з даних `covid19` ті, що стосуються вашої країни з даних авіасполучення. Далі з'єднайте їх з даними авіасполучення за ключем датою
-
 ```{r}
 # wider_df <- read.csv("checkpoints/df-6-wider.csv") %>%
 #   mutate(date = as.Date(date))
 
-
 ```
-
 ### 8. Збережіть отримані з'єднані дані в csv.
-Додатково можна спробувати побудувати scatterplot чи будь-що інше
 ```{r}
+write.csv(df,"Homework.csv")
+
 ```
-
-
 ### Що вийшло в результаті 
 ```{r}
-read.csv("checkpoints/final_result.csv")
+read.csv("Homework.csv")
 ```
