@@ -62,7 +62,7 @@ air[,c("date","year","month", "day")]
 ```{r}
 air <- air %>%
  group_by(day,month) %>%
- filter(n() == 2)
+ filter(n() == 2) %>%
  ungroup(df)
 air
   
