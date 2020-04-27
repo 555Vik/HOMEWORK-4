@@ -5,7 +5,6 @@ library(lubridate)
 library(rvest)
 
 ```
-
 ## Підготовка
 
 ```{r}
@@ -19,12 +18,9 @@ colnames(air) <- colnames(air) %>%
   str_replace(" ", ".") %>%
   str_to_lower()
 ```
-
-
 ```{r}
 air 
 ```
- 
 ```{r}
 air <- air %>%
   mutate(date = as.Date(date)) %>%
@@ -32,7 +28,6 @@ air <- air %>%
   air
   
 ```
-
 ### 2. Виберіть лише потрібні колонки
 ```{r}
 
@@ -41,14 +36,11 @@ air <- air %>%
   select(date,italy_non.italy) 
 air
   
-
 ```
-
 ### 3. Сортування
 
 ```{r}
-air <- air %>%
-              
+air <- air %>%          
   mutate(date = as.Date(date))  %>%
   select("date","italy_non.italy") %>%
   arrange((date))
@@ -64,8 +56,6 @@ air
 air[,c("date","year","month", "day")]
 
 ```
-
-
 ### 5. Фільтрування з групуванням
 
 ```{r}
@@ -76,8 +66,6 @@ air <- air %>%
 air
   
 ```
-
-
 ### 6. Перетворення
 ```{r}
 wider_df <- air %>% 
@@ -98,9 +86,6 @@ mutate(flights = y2020/y2019,
 wider_df
 
 ```
-
-
-
 ### 7. З'єднання
 
 Дані: https://data.humdata.org/dataset/novel-coronavirus-2019-ncov-cases (лінки скорочені для зручності)
@@ -130,8 +115,6 @@ covid19 <- prepare_covid("https://bit.ly/3aLLfKw", "cases") %>%
          date = as.Date(date))
 covid19
 ```
-
-
 ```{r}
 virus_df <- covid19 %>% 
  filter (country=="Italy") 
@@ -139,8 +122,6 @@ virus_df <- covid19 %>%
 virus_df 
 
 ```
-
-
 ```{r}
 df <-virus_df %>%
   
@@ -156,14 +137,11 @@ df
 #   mutate(date = as.Date(date))
 
 ```
-
 ### 8. Збережіть отримані з'єднані дані в csv.
 ```{r}
 write.csv(df,"Homework.csv")
 
 ```
-
-
 ### Що вийшло в результаті 
 ```{r}
 read.csv("Homework.csv")
